@@ -349,7 +349,7 @@ namespace Aspire.Hosting
         System.Threading.Tasks.Task<InteractionResult<bool>> PromptConfirmationAsync(string title, string message, MessageBoxInteractionOptions? options = null, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<InteractionResult<InteractionInput>> PromptInputAsync(string title, string? message, InteractionInput input, InputsDialogInteractionOptions? options = null, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<InteractionResult<InteractionInput>> PromptInputAsync(string title, string? message, string inputLabel, string placeHolder, InputsDialogInteractionOptions? options = null, System.Threading.CancellationToken cancellationToken = default);
-        System.Threading.Tasks.Task<InteractionResult<System.Collections.Generic.IReadOnlyList<InteractionInput>>> PromptInputsAsync(string title, string? message, System.Collections.Generic.IReadOnlyList<InteractionInput> inputs, InputsDialogInteractionOptions? options = null, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task<InteractionResult<InteractionInputCollection>> PromptInputsAsync(string title, string? message, System.Collections.Generic.IReadOnlyList<InteractionInput> inputs, InputsDialogInteractionOptions? options = null, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<InteractionResult<bool>> PromptMessageBoxAsync(string title, string message, MessageBoxInteractionOptions? options = null, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<InteractionResult<bool>> PromptNotificationAsync(string title, string message, NotificationInteractionOptions? options = null, System.Threading.CancellationToken cancellationToken = default);
     }
@@ -364,7 +364,7 @@ namespace Aspire.Hosting
     {
         public required System.Threading.CancellationToken CancellationToken { get { throw null; } init { } }
 
-        public required System.Collections.Generic.IReadOnlyList<InteractionInput> Inputs { get { throw null; } init { } }
+        public required InteractionInputCollection Inputs { get { throw null; } init { } }
 
         public required System.IServiceProvider ServiceProvider { get { throw null; } init { } }
 
@@ -390,9 +390,11 @@ namespace Aspire.Hosting
 
         public required InputType InputType { get { throw null; } init { } }
 
-        public required string Label { get { throw null; } init { } }
+        public string? Label { get { throw null; } init { } }
 
         public int? MaxLength { get { throw null; } set { } }
+
+        public required string Name { get { throw null; } init { } }
 
         public System.Collections.Generic.IReadOnlyList<System.Collections.Generic.KeyValuePair<string, string>>? Options { get { throw null; } init { } }
 
@@ -401,6 +403,29 @@ namespace Aspire.Hosting
         public bool Required { get { throw null; } init { } }
 
         public string? Value { get { throw null; } set { } }
+    }
+
+    [System.Diagnostics.CodeAnalysis.Experimental("ASPIREINTERACTION001", UrlFormat = "https://aka.ms/aspire/diagnostics/{0}")]
+    [System.Diagnostics.DebuggerDisplay("Count = {Count}")]
+    public sealed partial class InteractionInputCollection : System.Collections.Generic.IReadOnlyList<InteractionInput>, System.Collections.Generic.IEnumerable<InteractionInput>, System.Collections.IEnumerable, System.Collections.Generic.IReadOnlyCollection<InteractionInput>
+    {
+        public InteractionInputCollection(System.Collections.Generic.IReadOnlyList<InteractionInput> inputs) { }
+
+        public int Count { get { throw null; } }
+
+        public InteractionInput this[int index] { get { throw null; } }
+
+        public InteractionInput this[string name] { get { throw null; } }
+
+        public System.Collections.Generic.IEnumerable<string> Names { get { throw null; } }
+
+        public bool ContainsName(string name) { throw null; }
+
+        public System.Collections.Generic.IEnumerator<InteractionInput> GetEnumerator() { throw null; }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() { throw null; }
+
+        public bool TryGetByName(string name, out InteractionInput? input) { throw null; }
     }
 
     [System.Diagnostics.CodeAnalysis.Experimental("ASPIREINTERACTION001", UrlFormat = "https://aka.ms/aspire/diagnostics/{0}")]
@@ -605,6 +630,12 @@ namespace Aspire.Hosting
         public static ApplicationModel.IResourceBuilder<T> WaitForCompletion<T>(this ApplicationModel.IResourceBuilder<T> builder, ApplicationModel.IResourceBuilder<ApplicationModel.IResource> dependency, int exitCode = 0)
             where T : ApplicationModel.IResourceWithWaitSupport { throw null; }
 
+        public static ApplicationModel.IResourceBuilder<T> WaitForStart<T>(this ApplicationModel.IResourceBuilder<T> builder, ApplicationModel.IResourceBuilder<ApplicationModel.IResource> dependency, ApplicationModel.WaitBehavior waitBehavior)
+            where T : ApplicationModel.IResourceWithWaitSupport { throw null; }
+
+        public static ApplicationModel.IResourceBuilder<T> WaitForStart<T>(this ApplicationModel.IResourceBuilder<T> builder, ApplicationModel.IResourceBuilder<ApplicationModel.IResource> dependency)
+            where T : ApplicationModel.IResourceWithWaitSupport { throw null; }
+
         public static ApplicationModel.IResourceBuilder<T> WithArgs<T>(this ApplicationModel.IResourceBuilder<T> builder, System.Action<ApplicationModel.CommandLineArgsCallbackContext> callback)
             where T : ApplicationModel.IResourceWithArgs { throw null; }
 
@@ -703,6 +734,9 @@ namespace Aspire.Hosting
         [System.Obsolete("This method is obsolete and will be removed in a future version. Use the WithHttpHealthCheck method instead.")]
         public static ApplicationModel.IResourceBuilder<T> WithHttpsHealthCheck<T>(this ApplicationModel.IResourceBuilder<T> builder, string? path = null, int? statusCode = null, string? endpointName = null)
             where T : ApplicationModel.IResourceWithEndpoints { throw null; }
+
+        public static ApplicationModel.IResourceBuilder<T> WithIconName<T>(this ApplicationModel.IResourceBuilder<T> builder, string iconName, ApplicationModel.IconVariant iconVariant = ApplicationModel.IconVariant.Filled)
+            where T : ApplicationModel.IResource { throw null; }
 
         public static ApplicationModel.IResourceBuilder<T> WithManifestPublishingCallback<T>(this ApplicationModel.IResourceBuilder<T> builder, System.Action<Publishing.ManifestPublishingContext> callback)
             where T : ApplicationModel.IResource { throw null; }
@@ -859,6 +893,8 @@ namespace Aspire.Hosting.ApplicationModel
 
     public sealed partial class CommandLineArgsCallbackContext
     {
+        public CommandLineArgsCallbackContext(System.Collections.Generic.IList<object> args, IResource resource, System.Threading.CancellationToken cancellationToken = default) { }
+
         public CommandLineArgsCallbackContext(System.Collections.Generic.IList<object> args, System.Threading.CancellationToken cancellationToken = default) { }
 
         public System.Collections.Generic.IList<object> Args { get { throw null; } }
@@ -868,6 +904,8 @@ namespace Aspire.Hosting.ApplicationModel
         public DistributedApplicationExecutionContext ExecutionContext { get { throw null; } init { } }
 
         public Microsoft.Extensions.Logging.ILogger Logger { get { throw null; } init { } }
+
+        public IResource Resource { get { throw null; } }
     }
 
     public partial class CommandOptions
@@ -1108,6 +1146,10 @@ namespace Aspire.Hosting.ApplicationModel
         public System.Collections.Immutable.ImmutableArray<HealthReportSnapshot> HealthReports { get { throw null; } }
 
         public Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus? HealthStatus { get { throw null; } }
+
+        public string? IconName { get { throw null; } init { } }
+
+        public IconVariant? IconVariant { get { throw null; } init { } }
 
         public bool IsHidden { get { throw null; } init { } }
 
@@ -2049,6 +2091,16 @@ namespace Aspire.Hosting.ApplicationModel
         public static bool TryGetUrls(this IResource resource, out System.Collections.Generic.IEnumerable<ResourceUrlAnnotation>? urls) { throw null; }
     }
 
+    [System.Diagnostics.DebuggerDisplay("Type = {GetType().Name,nq}, IconName = {IconName}, IconVariant = {IconVariant}")]
+    public sealed partial class ResourceIconAnnotation : IResourceAnnotation
+    {
+        public ResourceIconAnnotation(string iconName, IconVariant iconVariant = IconVariant.Filled) { }
+
+        public string IconName { get { throw null; } }
+
+        public IconVariant IconVariant { get { throw null; } }
+    }
+
     public partial class ResourceLoggerService
     {
         public void ClearBacklog(string resourceName) { }
@@ -2081,7 +2133,7 @@ namespace Aspire.Hosting.ApplicationModel
     {
         public ResourceNotificationService(Microsoft.Extensions.Logging.ILogger<ResourceNotificationService> logger, Microsoft.Extensions.Hosting.IHostApplicationLifetime hostApplicationLifetime, System.IServiceProvider serviceProvider, ResourceLoggerService resourceLoggerService) { }
 
-        [System.Obsolete("ResourceNotificationService now requires an IServiceProvider and ResourceLoggerService.\r\nUse the constructor that accepts an ILogger<ResourceNotificationService>, IHostApplicationLifetime, IServiceProvider and ResourceLoggerService.\r\nThis constructor will be removed in the next major version of Aspire.")]
+        [System.Obsolete("ResourceNotificationService now requires an IServiceProvider and ResourceLoggerService.\nUse the constructor that accepts an ILogger<ResourceNotificationService>, IHostApplicationLifetime, IServiceProvider and ResourceLoggerService.\nThis constructor will be removed in the next major version of Aspire.")]
         public ResourceNotificationService(Microsoft.Extensions.Logging.ILogger<ResourceNotificationService> logger, Microsoft.Extensions.Hosting.IHostApplicationLifetime hostApplicationLifetime) { }
 
         public void Dispose() { }
@@ -2242,7 +2294,8 @@ namespace Aspire.Hosting.ApplicationModel
     public enum WaitType
     {
         WaitUntilHealthy = 0,
-        WaitForCompletion = 1
+        WaitForCompletion = 1,
+        WaitUntilStarted = 2
     }
 }
 
